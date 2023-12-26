@@ -1,7 +1,6 @@
 FROM ubuntu:jammy as build_env 
 
 ARG QEMU_TAG=v8.1.4
-ARG QEMU_ARGS="--enable-slirp --enable-vnc"
 
 WORKDIR /work
 
@@ -19,15 +18,15 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
 RUN mkdir /work/qemu/build_system && cd /work/qemu/build_system &&\
-    ../configure ${QEMU_ARGS} --enable-system --disable-user --prefix="/opt/qemu_system" &&\
+    ../configure --enable-slirp --enable-vnc --enable-system --disable-user --prefix="/opt/qemu_system" &&\
     make -j && make install
 
 RUN mkdir /work/qemu/build_user && cd /work/qemu/build_user &&\
-    ../configure ${QEMU_ARGS} --enable-user --disable-system --prefix="/opt/qemu_user" &&\
+    ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user" &&\
     make -j && make install
 
 RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
-    ../configure ${QEMU_ARGS} --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
+    ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
 RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
