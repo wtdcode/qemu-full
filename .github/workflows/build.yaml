@@ -26,7 +26,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          build-args: ["QEMU_TAG=master"]
+          build-args:
+            QEMU_TAG: master
           tags: lazymio/qemu-full:latest
 
       - name: Get the tag
@@ -39,9 +40,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          build-args: [
-            "QEMU_TAG=${{ steps.get_tag.outputs.tag }}"
-          ]
+          build-args:
+            QEMU_TAG: ${{ steps.get_tag.outputs.tag }}
           tags: lazymio/qemu-full:${{ steps.get_tag.outputs.tag }}
 
       
