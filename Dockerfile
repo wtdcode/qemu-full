@@ -22,7 +22,7 @@ RUN mkdir /work/qemu/build && cd /work/qemu/build &&\
 
 RUN cd /work/qemu/build && make install
 
-RUN git rev-parse HEAD > /opt/qemu/build_hash
+RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
 
 FROM ubuntu:jammy as run_env
 
