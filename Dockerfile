@@ -29,11 +29,11 @@ RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
     ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
-RUN mkdir /opt/binfmt && cd /work/qemu &&\
+RUN apt install -y binfmt-support && mkdir /opt/binfmt && cd /work/qemu &&\
     bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "/usr/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
     find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
-RUN apt install -y binfmt-support && cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
+RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
 
 # Unfortunately, qemu-system doesn't support static builds and easily breaks, so we can't ship everything in anohter container.
 # Ref: https://gitlab.com/qemu-project/qemu/-/issues/1785
