@@ -31,6 +31,9 @@ RUN apt install -y binfmt-support && mkdir /opt/binfmt && cd /work/qemu &&\
 
 RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
 
+# Simple test
+RUN /opt/qemu/bin/qemu-system-x86_64 --version
+
 # Unfortunately, qemu-system doesn't support static builds and easily breaks, so we can't ship everything in anohter container.
 # Ref: https://gitlab.com/qemu-project/qemu/-/issues/1785
 
