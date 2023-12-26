@@ -13,7 +13,7 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
     libsasl2-dev libsdl2-dev libseccomp-dev libsnappy-dev libssh-dev \
     libvde-dev libvdeplug-dev libvte-2.91-dev libxen-dev liblzo2-dev \
     valgrind xfslibs-dev libnfs-dev libiscsi-dev python3-venv build-essential \
-    flex bison libmount-dev libunistring-dev libp11-kit-dev 
+    flex bison libmount-dev libunistring-dev libp11-kit-dev libslirp-dev
 
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
@@ -36,6 +36,5 @@ RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
 
 # Clean
 RUN rm -rf /work/qemu
-RUN apt purge -y valgrind flex bison git ninja-build && apt autoremove -y
 ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemu/bin"
 CMD ["/bin/bash"]
