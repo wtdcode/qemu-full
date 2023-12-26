@@ -13,22 +13,29 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
     libsasl2-dev libsdl2-dev libseccomp-dev libsnappy-dev libssh-dev \
     libvde-dev libvdeplug-dev libvte-2.91-dev libxen-dev liblzo2-dev \
     valgrind xfslibs-dev libnfs-dev libiscsi-dev python3-venv build-essential \
-    flex bison
+    flex bison libmount-dev libunistring-dev libp11-kit-dev
 
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
-RUN mkdir /work/qemu/build && cd /work/qemu/build &&\
-    ../configure --prefix="/opt/qemu" && make -j
+RUN mkdir /work/qemu/build_system && cd /work/qemu/build_system &&\
+    ../configure --enable-system --disable-user --prefix="/opt/qemu_system" &&\
+    make -j && make install
 
-RUN cd /work/qemu/build && make install
+RUN mkdir /work/qemu/build_user && cd /work/qemu/build_user &&\
+    ../configure --enable-user --disable-system --prefix="/opt/qemu_user" &&\
+    make -j && make install
 
-RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
+RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
+    ../configure --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
+    make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
-FROM ubuntu:jammy as run_env
+RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
 
-WORKDIR /work
-# We don't want to install a make here
-COPY --from=build_env /opt/qemu /opt/qemu
-ENV PATH="${PATH}:/opt/qemu/bin"
+# Unfortunately, qemu-system doesn't support static builds and easily breaks, so we can't ship everything in anohter container.
+# Ref: https://gitlab.com/qemu-project/qemu/-/issues/1785
 
+# Clean
+RUN rm -rf /work/qemu
+RUN apt purge -y valgrind flex bison git ninja-build && apt autoremove -y
+ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemu_user/bin:/opt/qemu_system/bin"
 CMD ["/bin/bash"]
