@@ -13,7 +13,7 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
     libsasl2-dev libsdl2-dev libseccomp-dev libsnappy-dev libssh-dev \
     libvde-dev libvdeplug-dev libvte-2.91-dev libxen-dev liblzo2-dev \
     valgrind xfslibs-dev libnfs-dev libiscsi-dev python3-venv build-essential \
-    flex bison libmount-dev libunistring-dev libp11-kit-dev binfmt-support
+    flex bison libmount-dev libunistring-dev libp11-kit-dev 
 
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
@@ -33,7 +33,7 @@ RUN mkdir /opt/binfmt && cd /work/qemu &&\
     bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "/usr/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
     find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
-RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
+RUN apt install -y binfmt-support && cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
 
 # Unfortunately, qemu-system doesn't support static builds and easily breaks, so we can't ship everything in anohter container.
 # Ref: https://gitlab.com/qemu-project/qemu/-/issues/1785
