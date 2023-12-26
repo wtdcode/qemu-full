@@ -1,0 +1,47 @@
+name: Build qemu-full
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push to latest
+        if: ${{ !startsWith(github.ref, 'refs/tags') }}
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          build-args: ["QEMU_TAG=master"]
+          tags: lazymio/qemu-full:latest
+
+      - name: Get the tag
+        if: ${{ startsWith(github.ref, 'refs/tags') }}
+        id: get_tag
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      - name: Push to tag
+        if: ${{ startsWith(github.ref, 'refs/tags') }}
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          build-args: [
+            "QEMU_TAG=${{ steps.get_tag.outputs.tag }}"
+          ]
+          tags: lazymio/qemu-full:${{ steps.get_tag.outputs.tag }}
+
+      
