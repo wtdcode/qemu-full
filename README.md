@@ -7,7 +7,7 @@ Tags:
 - `latest`: the latest qemu master version
 - `vx.x.x`: The qemu build of version `vx.x.x`
 
-QEMU are installed to `/opt/{qemu_system, qemu_user, qemu_user_static}` and see `/opt/qemu_system/build_hash` for the commit hash.
+QEMU are installed to `/opt/{qemu, qemu_user_static}` and see `/opt/qemu/build_hash` for the commit hash.
 
 As of v8.1.4, we have:
 

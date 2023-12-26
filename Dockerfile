@@ -18,22 +18,18 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
 RUN mkdir /work/qemu/build_system && cd /work/qemu/build_system &&\
-    ../configure --enable-slirp --enable-vnc --enable-system --disable-user --prefix="/opt/qemu_system" &&\
-    make -j && make install
-
-RUN mkdir /work/qemu/build_user && cd /work/qemu/build_user &&\
-    ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user" &&\
+    ../configure --enable-slirp --enable-vnc --prefix="/opt/qemu" &&\
     make -j && make install
 
 RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
-    ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
+    ../configure --enable-linux-user --enable-tcg --disable-system --prefix="/opt/qemu_user_static" --static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
 RUN apt install -y binfmt-support && mkdir /opt/binfmt && cd /work/qemu &&\
     bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "/usr/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
     find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
-RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
+RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
 
 # Unfortunately, qemu-system doesn't support static builds and easily breaks, so we can't ship everything in anohter container.
 # Ref: https://gitlab.com/qemu-project/qemu/-/issues/1785
@@ -41,5 +37,5 @@ RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
 # Clean
 RUN rm -rf /work/qemu
 RUN apt purge -y valgrind flex bison git ninja-build && apt autoremove -y
-ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemu_user/bin:/opt/qemu_system/bin"
+ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemubin"
 CMD ["/bin/bash"]
