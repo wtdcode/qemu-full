@@ -13,7 +13,7 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
     libsasl2-dev libsdl2-dev libseccomp-dev libsnappy-dev libssh-dev \
     libvde-dev libvdeplug-dev libvte-2.91-dev libxen-dev liblzo2-dev \
     valgrind xfslibs-dev libnfs-dev libiscsi-dev python3-venv build-essential \
-    flex bison libmount-dev libunistring-dev libp11-kit-dev
+    flex bison libmount-dev libunistring-dev libp11-kit-dev binfmt-support
 
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
@@ -28,6 +28,10 @@ RUN mkdir /work/qemu/build_user && cd /work/qemu/build_user &&\
 RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
     ../configure --enable-slirp --enable-user --disable-system --prefix="/opt/qemu_user_static" --static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
+
+RUN mkdir /opt/binfmt && cd /work/qemu &&\
+    bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "/usr/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
+    find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
 RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu_system/build_hash
 
