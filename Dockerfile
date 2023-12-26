@@ -37,5 +37,5 @@ RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
 # Clean
 RUN rm -rf /work/qemu
 RUN apt purge -y valgrind flex bison git ninja-build && apt autoremove -y
-ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemubin"
+ENV PATH="${PATH}:/opt/qemu_user_static/bin:/opt/qemu/bin"
 CMD ["/bin/bash"]
