@@ -25,8 +25,16 @@ RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
     ../configure --enable-linux-user --enable-tcg --disable-system --prefix="/opt/qemu_user_static" --static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
-RUN apt install -y binfmt-support && mkdir /opt/binfmt && cd /work/qemu &&\
-    bash scripts/qemu-binfmt-conf.sh --debian --persistent=yes --qemu-path "/opt/qemu_user_static/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
+# With --persistent=yes (Fixed binary flag), the emulator is opened (and kept in kernel) when the binfmt_misc entry is installed.
+# This means:
+#       1. If host system installs emulators with F flag, we have to clear them firstly or our installation won't work
+#       2. Once installed with F flag, we don't need to copy emulator to new rootfs.
+# Of course, we can use traditional way: Install emulator without F flag, copy emulators to new rootfs and chroot.
+RUN apt install -y binfmt-support && mkdir /opt/binfmt_fixed && mkdir /opt/binfmt && cd /work/qemu &&\
+    bash scripts/qemu-binfmt-conf.sh --debian --persistent=yes --qemu-path "/opt/qemu_user_static/bin" \
+    --qemu-suffix "-static" --exportdir /opt/binfmt_fixed &&\
+    bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "" \
+    --qemu-suffix "-static" --exportdir /opt/binfmt &&\
     find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
 RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
