@@ -26,7 +26,7 @@ RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
     make -j && make install && find /opt/qemu_user_static/bin/ -name "qemu-*" -exec mv '{}' '{}-static' ';'
 
 RUN apt install -y binfmt-support && mkdir /opt/binfmt && cd /work/qemu &&\
-    bash scripts/qemu-binfmt-conf.sh --debian --qemu-path "/usr/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
+    bash scripts/qemu-binfmt-conf.sh --debian --persistent=yes --qemu-path "/opt/qemu_user_static/bin" --qemu-suffix "-static" --exportdir /opt/binfmt &&\
     find /opt/binfmt -name "qemu-*" -exec update-binfmts --importdir /opt/binfmt --import '{}' ';'
 
 RUN cd /work/qemu && git rev-parse HEAD > /opt/qemu/build_hash
