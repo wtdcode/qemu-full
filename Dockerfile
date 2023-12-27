@@ -27,7 +27,8 @@ RUN mkdir /work/qemu/build_user_static && cd /work/qemu/build_user_static &&\
 
 # With --persistent=yes (Fixed binary flag), the emulator is opened (and kept in kernel) when the binfmt_misc entry is installed.
 # This means:
-#       1. If host system installs emulators with F flag, we have to clear them firstly or our installation won't work
+#       1. If host system installs emulators with F flag, we have to clear them firstly or our installation won't work (we will use
+#          emulator installed by the host system because the images are kept in kernel)
 #       2. Once installed with F flag, we don't need to copy emulator to new rootfs.
 # Of course, we can use traditional way: Install emulator without F flag, copy emulators to new rootfs and chroot.
 RUN apt install -y binfmt-support && mkdir /opt/binfmt_fixed && mkdir /opt/binfmt && cd /work/qemu &&\
