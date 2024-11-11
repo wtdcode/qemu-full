@@ -17,6 +17,8 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
 
 RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
+RUN python3 -m pip install tomli
+
 RUN mkdir /work/qemu/build_system && cd /work/qemu/build_system &&\
     ../configure --enable-slirp --enable-vnc --prefix="/opt/qemu" &&\
     make -j && make install
