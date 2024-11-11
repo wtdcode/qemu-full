@@ -15,7 +15,7 @@ RUN apt update && apt install -y git libglib2.0-dev libfdt-dev \
     valgrind xfslibs-dev libnfs-dev libiscsi-dev python3-venv build-essential \
     flex bison libmount-dev libunistring-dev libp11-kit-dev libslirp-dev
 
-RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu && cd qemu && git submodule update --init --recursive
+RUN git clone --depth 1 --branch ${QEMU_TAG} https://github.com/qemu/qemu
 
 
 RUN mkdir /work/qemu/build_system && cd /work/qemu/build_system &&\
